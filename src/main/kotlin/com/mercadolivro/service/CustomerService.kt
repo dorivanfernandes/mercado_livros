@@ -1,12 +1,14 @@
 package com.mercadolivro.service
 
+import com.mercadolivro.enums.CustomerStatus
 import com.mercadolivro.model.CustomerModel
 import com.mercadolivro.repository.CustomerRepository
 import org.springframework.stereotype.Service
 
 @Service
 class CustomerService(
-    val customerRepository: CustomerRepository
+    val customerRepository: CustomerRepository,
+    val bookService: BookService
 ) {
 
     val teste = mutableListOf(1)
@@ -18,7 +20,7 @@ class CustomerService(
         return customerRepository.findAll().toList()
     }
 
-    fun getCustomerById(id: Int): CustomerModel{
+    fun getById(id: Int): CustomerModel{
         return customerRepository.findById(id).orElseThrow()
     }
 
@@ -35,10 +37,12 @@ class CustomerService(
     }
 
     fun deleteCustomerById(id: Int){
-        if(!customerRepository.existsById(id)){
-            throw Exception()
-        }
+        val customer = getById(id)
 
-        customerRepository.deleteById(id)
+        bookService.deleteByCustomer(customer)
+
+        customer.status = CustomerStatus.INATIVO
+
+        customerRepository.save(customer)
     }
 }
