@@ -33,4 +33,15 @@ class ControllerAdvice {
         )
         return ResponseEntity(error, HttpStatus.BAD_REQUEST)
     }
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException::class)
+    fun handleException(exception: org.springframework.security.access.AccessDeniedException, request: WebRequest): ResponseEntity<ErrorResponse>{
+        val error = ErrorResponse(
+            HttpStatus.FORBIDDEN.value(),
+            "Não autorizado",
+            "",
+            errors = null
+        )
+        return ResponseEntity(error, HttpStatus.FORBIDDEN)
+    }
 }

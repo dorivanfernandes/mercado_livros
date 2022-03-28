@@ -1,17 +1,18 @@
 package com.mercadolivro.service
 
 import com.mercadolivro.enums.CustomerStatus
+import com.mercadolivro.enums.Role
 import com.mercadolivro.model.CustomerModel
 import com.mercadolivro.repository.CustomerRepository
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
 class CustomerService(
-    val customerRepository: CustomerRepository,
-    val bookService: BookService
+    private val customerRepository: CustomerRepository,
+    private val bookService: BookService,
+    private val bCrypt: BCryptPasswordEncoder
 ) {
-
-    val teste = mutableListOf(1)
 
     fun getAll(name: String?): List<CustomerModel>{
         name?.let {
@@ -25,7 +26,11 @@ class CustomerService(
     }
 
     fun createCustomer(customerModel: CustomerModel){
-        customerRepository.save(customerModel)
+        val customerCopy = customerModel.copy(
+            roles = setOf(Role.CUSTOMER),
+            password = bCrypt.encode(customerModel.password)
+        )
+        customerRepository.save(customerCopy)
     }
 
     fun updateCustomerById(customerModel: CustomerModel){
